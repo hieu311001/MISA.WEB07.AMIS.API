@@ -1,4 +1,5 @@
 ﻿using MISA.WEB07.AMIS.BL.Interfaces;
+using MISA.WEB07.AMIS.Common;
 using MISA.WEB07.AMIS.DL.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace MISA.WEB07.AMIS.BL.Services
         #region Field
 
         private IBaseDL<T> _baseDL;
+        protected List<string> errorList;
 
         #endregion
 
@@ -21,6 +23,7 @@ namespace MISA.WEB07.AMIS.BL.Services
         public BaseBL(IBaseDL<T> baseDL)
         {
             _baseDL = baseDL;
+            errorList = new List<string>();
         }
 
         #endregion
@@ -54,17 +57,32 @@ namespace MISA.WEB07.AMIS.BL.Services
         /// CreatedBy VMHieu 23/08/2022
         public virtual int Insert(T entity)
         {
-            return _baseDL.Insert(entity);
-        }
+            var isValid = Validate(entity);
+            if (isValid)
+            {
+                return _baseDL.Insert(entity);
+            } else
+            {
+                throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "InvalidData"), listErrors: errorList);
+            }
+}
 
         /// <summary>
         /// Sửa 1 bản ghi 
         /// </summary>
         /// <returns>Số dòng thay đổi sau câu lệnh</returns>
         /// CreatedBy VMHieu 23/08/2022
-        public virtual int Update(T entity)
+        public virtual int Update(T entity, Guid id)
         {
-            return _baseDL.Update(entity);
+            var isValid = Validate(entity);
+            if (isValid)
+            {
+                return _baseDL.Update(entity, id);
+            }
+            else
+            {
+                throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "InvalidData"), listErrors: errorList);
+            }
         }
 
         /// <summary>
@@ -75,6 +93,17 @@ namespace MISA.WEB07.AMIS.BL.Services
         public virtual int Delete(Guid id)
         {
             return _baseDL.Delete(id);
+        }
+
+        /// <summary>
+        /// Validate dữ liệu
+        /// </summary>
+        /// <param name="entity">Dữ liệu bản ghi cần validate</param>
+        /// <returns>true - nếu hợp lệ, false - nếu không hợp lệ</returns>
+        /// CreatedBy VMHieu 28/08/2022
+        protected virtual bool Validate(T entity)
+        {
+            return true;
         }
 
         #endregion

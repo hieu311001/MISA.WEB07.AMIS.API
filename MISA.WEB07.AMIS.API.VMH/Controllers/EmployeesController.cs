@@ -27,11 +27,6 @@ namespace MISA.WEB07.AMIS.API.VMH.Controllers
 
         #region Method
 
-        private Employee HandleException(Exception ex)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Lấy ra mã EmployeeCode lớn nhất sau đó + 1
         /// </summary>
@@ -55,7 +50,8 @@ namespace MISA.WEB07.AMIS.API.VMH.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+                Console.WriteLine(ex.Message);
+                return HandleException(ex);
             }
         }
 
@@ -88,7 +84,7 @@ namespace MISA.WEB07.AMIS.API.VMH.Controllers
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status400BadRequest, "e001");
+                return HandleException(exception);
             }
         }
 

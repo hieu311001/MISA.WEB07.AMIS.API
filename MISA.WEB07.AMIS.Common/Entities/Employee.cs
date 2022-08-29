@@ -58,7 +58,6 @@ namespace MISA.WEB07.AMIS.Common.Entities
         /// <summary>
         /// Email
         /// </summary>
-        [EmailAddress(ErrorMessage = "e007")]
         public string? Email { get; set; }
 
         /// <summary>
@@ -77,10 +76,15 @@ namespace MISA.WEB07.AMIS.Common.Entities
         public string? PositionName { get; set; }
 
         /// <summary>
-        /// ID phòng ban
+        /// ID đơn vị
         /// </summary>
         [Required(ErrorMessage = "e006")]
         public Guid? DepartmentID { get; set; }
+
+        /// <summary>
+        /// Tên đơn vị
+        /// </summary>
+        public string? DepartmentName { get; set; }
 
         /// <summary>
         /// Tài khoản ngân hàng
@@ -96,6 +100,10 @@ namespace MISA.WEB07.AMIS.Common.Entities
         /// Chi nhánh ngân hàng
         /// </summary>
         public string? BankBranch { get; set; }
+        /// <summary>
+        /// Địa chỉ
+        /// </summary>
+        public string? Address { get; set; }
 
         /// <summary>
         /// Vai trò

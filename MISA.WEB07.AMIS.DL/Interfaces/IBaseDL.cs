@@ -34,7 +34,7 @@ namespace MISA.WEB07.AMIS.DL.Interfaces
         /// </summary>
         /// <returns>Số dòng thay đổi sau câu lệnh</returns>
         /// CreatedBy VMHieu 23/08/2022
-        public int Update(T entity);
+        public int Update(T entity, Guid id);
 
         /// <summary>
         /// Xóa 1 bản ghi 

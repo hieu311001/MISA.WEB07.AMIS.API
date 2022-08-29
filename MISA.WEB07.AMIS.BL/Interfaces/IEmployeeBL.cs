@@ -19,10 +19,7 @@ namespace MISA.WEB07.AMIS.BL.Interfaces
         /// <summary>
         /// API Lấy danh sách nhân viên cho phép lọc và phân trang
         /// </summary>
-        /// <param name="code">Mã nhân viên</param>
-        /// <param name="name">Tên nhân viên</param>
-        /// <param name="pageSize">Số trang muốn lấy</param>
-        /// <param name="pageNumber">Thứ tự trang muốn lấy</param>
+        /// <param name="keyword">Từ khóa cần tìm kiếm</param>
         /// <returns>Một đối tượng gồm:
         /// + Danh sách nhân viên thỏa mãn điều kiện lọc và phân trang
         /// + Tổng số nhân viên thỏa mãn điều kiện</returns>

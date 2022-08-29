@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MISA.WEB07.AMIS.BL.Interfaces;
+using MISA.WEB07.AMIS.Common;
 
 namespace MISA.WEB07.AMIS.API.VMH.Controllers
 {
@@ -30,9 +31,17 @@ namespace MISA.WEB07.AMIS.API.VMH.Controllers
         /// <returns>Tất cả bản ghi của bảng T</returns>
         /// CreatedBy VMHieu 23/08/2022
         [HttpGet]
-        public IEnumerable<T> GetAll()
+        public IActionResult GetAll()
         {
-            return _baseBL.GetAll();
+            try
+            {
+                return StatusCode(StatusCodes.Status200OK, _baseBL.GetAll());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return HandleException(ex);
+            }
         }
 
         /// <summary>
@@ -42,9 +51,17 @@ namespace MISA.WEB07.AMIS.API.VMH.Controllers
         /// <returns>Thông tin bản ghi</returns>
         /// CreatedBy VMHieu 23/08/2022
         [HttpGet("{id}")]
-        public T GetById(Guid id)
+        public IActionResult GetById(Guid id)
         {
-            return _baseBL.GetById(id);
+            try
+            {
+                return StatusCode(StatusCodes.Status200OK, _baseBL.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return HandleException(ex);
+            }
         }
 
         /// <summary>
@@ -53,9 +70,17 @@ namespace MISA.WEB07.AMIS.API.VMH.Controllers
         /// <returns>Số dòng thay đổi sau câu lệnh</returns>
         /// CreatedBy VMHieu 23/08/2022
         [HttpPost]
-        public int Insert(T entity)
+        public IActionResult Insert(T entity)
         {
-            return _baseBL.Insert(entity);
+            try
+            {
+                return StatusCode(StatusCodes.Status201Created, _baseBL.Insert(entity));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return HandleException(ex);
+            }
         }
 
         /// <summary>
@@ -63,10 +88,18 @@ namespace MISA.WEB07.AMIS.API.VMH.Controllers
         /// </summary>
         /// <returns>Số dòng thay đổi sau câu lệnh</returns>
         /// CreatedBy VMHieu 23/08/2022
-        [HttpPut]
-        public int Update(T entity)
+        [HttpPut("{id}")]
+        public IActionResult Update(T entity, Guid id)
         {
-            return _baseBL.Update(entity);
+            try
+            {
+                return StatusCode(StatusCodes.Status200OK, _baseBL.Update(entity, id));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return HandleException(ex);
+            }
         }
 
         /// <summary>
@@ -74,10 +107,40 @@ namespace MISA.WEB07.AMIS.API.VMH.Controllers
         /// </summary>
         /// <returns>Số dòng thay đổi sau câu lệnh</returns>
         /// CreatedBy VMHieu 23/08/2022
-        [HttpDelete]
-        public int Delete(Guid id)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
         {
-            return _baseBL.Delete(id);
+            try
+            {
+                return StatusCode(StatusCodes.Status200OK, _baseBL.Delete(id));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return HandleException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Exception xử lý ngoại lệ
+        /// </summary>
+        /// <param name="ex">Ngoại lệ được bắt</param>
+        /// <returns></returns>
+        /// CreatedBy VMHieu 28/08/2022
+        protected IActionResult HandleException(Exception ex)
+        {
+            var error = new
+            {
+                devMsg = ex.Message,
+                userMsg = Resources.ResourceManager.GetString(name: "ErrorException"),
+                errorMsg = ex.Data["Error"]
+            };
+
+            if (ex is ErrorException)
+            {
+                return BadRequest(error);
+            }
+            return StatusCode(500, error);
         }
 
         #endregion

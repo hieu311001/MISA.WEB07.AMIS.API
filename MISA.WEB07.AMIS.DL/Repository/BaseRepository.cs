@@ -7,6 +7,9 @@ using Dapper;
 using MySqlConnector;
 using MISA.WEB07.AMIS.Common.Entities;
 using MISA.WEB07.AMIS.DL.Interfaces;
+using Microsoft.Extensions.Configuration;
+using System.Data;
+using MISA.WEB07.AMIS.Common;
 
 namespace MISA.WEB07.AMIS.DL.Repository
 {
@@ -14,8 +17,50 @@ namespace MISA.WEB07.AMIS.DL.Repository
     {
         #region Field
 
-        private const string CONNECTION_STRING = "Server=localhost;Port=3306;Database=amis_db;Uid=root;Pwd=Hieu311001.";
-        private string className = typeof(T).Name;
+        /// <summary>
+        /// Khởi tạo variable
+        /// </summary>
+        protected string connectionString;
+        protected MySqlConnection mySqlConnection;
+        protected string className;
+        protected List<string> errorList;
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Khởi tạo
+        /// </summary>
+        /// <exception cref="ErrorException">Gọi đến khi lỗi kết nối database</exception>
+        /// CreatedBy VMHieu 28/08/2022
+        public BaseRepository(IConfiguration configuration)
+        {
+            errorList = new List<string>();
+            // Khai báo thông tin kết nối
+            connectionString = configuration.GetConnectionString("dataBase");
+            // Khai báo tên bảng
+            className = typeof(T).Name;
+            mySqlConnection = new MySqlConnection(connectionString);
+            if (mySqlConnection != null && mySqlConnection.State != ConnectionState.Open)
+            {
+                mySqlConnection.Open();
+            }
+            else
+            {
+                throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "ExceptionConnection"));
+            }
+        }
+
+        /// <summary>
+        /// Giải phóng bộ nhớ
+        /// </summary>
+        /// CreatedBy VMHieu 28/02/2022
+        public void Dispose()
+        {
+            mySqlConnection.Dispose();
+            mySqlConnection.Close();
+        }
 
         #endregion
 
@@ -27,14 +72,16 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public virtual IEnumerable<T> GetAll()
         {
-            using (var mySqlConnection = new MySqlConnection(CONNECTION_STRING))
+            var getAllEmployeeCommand = $"Proc_{className}_GetAll";
+
+            var result = mySqlConnection.Query<T>(getAllEmployeeCommand, commandType: System.Data.CommandType.StoredProcedure);
+
+            if (result == null)
             {
-                var getAllEmployeeCommand = $"Proc_{className}_GetAll";
-
-                var result = mySqlConnection.Query<T>(getAllEmployeeCommand, commandType: System.Data.CommandType.StoredProcedure);
-
-                return result;
+                throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "NullData"));
             }
+            Dispose();
+            return result;
         }
 
         /// <summary>
@@ -45,17 +92,19 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public virtual T GetById(Guid id)
         {
-            using (var mySqlConnection = new MySqlConnection(CONNECTION_STRING))
+            var getByIdCommand = $"Proc_{className}_GetById";
+
+            var parameters = new DynamicParameters();
+            parameters.Add($"${className}Id", id);
+
+            var result = mySqlConnection.QueryFirstOrDefault<T>(getByIdCommand, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
+
+            if(result == null)
             {
-                var getByIdCommand = $"Proc_{className}_GetById";
-
-                var parameters = new DynamicParameters();
-                parameters.Add($"${className}Id", id);
-
-                var result = mySqlConnection.QueryFirstOrDefault<T>(getByIdCommand, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
-
-                return result;
+                throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "NullData"));
             }
+            Dispose();
+            return result;
         }
 
         /// <summary>
@@ -65,16 +114,17 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public int Insert(T entity)
         {
-            using (var mySqlConnection = new MySqlConnection(CONNECTION_STRING))
+            var storeProc = $"Proc_{className}_Insert";
+
+            var parameters = new DynamicParameters(entity);
+
+            var result = mySqlConnection.Execute(storeProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
+            if(result == 0)
             {
-                var storeProc = $"Proc_{className}_Insert";
-
-                var parameters = new DynamicParameters(entity);
-
-                var result = mySqlConnection.Execute(storeProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
-
-                return result;
+                throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "ExceptionInsert"));
             }
+            Dispose();
+            return result;
         }
 
         /// <summary>
@@ -82,18 +132,20 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// </summary>
         /// <returns>Số dòng thay đổi sau câu lệnh</returns>
         /// CreatedBy VMHieu 23/08/2022
-        public int Update(T entity)
+        public int Update(T entity, Guid id)
         {
-            using (var mySqlConnection = new MySqlConnection(CONNECTION_STRING))
+            var storeProc = $"Proc_{className}_Update";
+
+            var parameters = new DynamicParameters(entity);
+            parameters.Add($"{className}ID", id);
+
+            var result = mySqlConnection.Execute(storeProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
+            if(result == 0)
             {
-                var storeProc = $"Proc_{className}_Update";
-
-                var parameters = new DynamicParameters(entity);
-
-                var result = mySqlConnection.Execute(storeProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
-
-                return result;
+                throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "ExceptionUpdate"));
             }
+            Dispose();
+            return result;
         }
 
         /// <summary>
@@ -103,17 +155,18 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public int Delete(Guid id)
         {
-            using (var mySqlConnection = new MySqlConnection(CONNECTION_STRING))
+            var getByIdCommand = $"Proc_{className}_Delete";
+
+            var parameters = new DynamicParameters();
+            parameters.Add($"${className}Id", id);
+
+            var result = mySqlConnection.Execute(getByIdCommand, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
+            if (result == 0)
             {
-                var getByIdCommand = $"Proc_{className}_Delete";
-
-                var parameters = new DynamicParameters();
-                parameters.Add($"${className}Id", id);
-
-                var result = mySqlConnection.Execute(getByIdCommand, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
-
-                return result;
+                throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "ExceptionDelete"));
             }
+            Dispose();
+            return result;
         }
 
         #endregion

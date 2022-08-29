@@ -32,5 +32,13 @@ namespace MISA.WEB07.AMIS.DL.Interfaces
             int pageSize = 10,
             int pageNumber = 1);
 
+        /// <summary>
+        /// Kiểm tra trùng mã nhân viên
+        /// </summary>
+        /// <param name="employeeCode">mã nhân viên đang xét</param>
+        /// <returns>true-nếu có mã nhân viên trùng false- nếu mã nhân viên không trùng</returns>
+        /// CreatedBy VMHieu 28/08/2022
+        public bool IsDuplicate(Guid? employeeID, string employeeCode);
+
     }
 }
