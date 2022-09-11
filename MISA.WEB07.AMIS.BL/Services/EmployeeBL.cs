@@ -2,6 +2,7 @@
 using MISA.WEB07.AMIS.Common;
 using MISA.WEB07.AMIS.Common.Entities;
 using MISA.WEB07.AMIS.DL.Interfaces;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace MISA.WEB07.AMIS.BL.Services
         /// <param name="entity">Dữ liệu bản ghi cần validate</param>
         /// <returns>true - nếu hợp lệ, false - nếu không hợp lệ</returns>
         /// CreatedBy VMHieu 28/08/2022
-        protected override bool Validate(Employee employee)
+        protected override bool Validate(Employee employee, Guid? id)
         {
             // Xử lý nghiệp vụ
             // Thông tin mã nhân viên bắt buộc nhập
@@ -50,7 +51,7 @@ namespace MISA.WEB07.AMIS.BL.Services
             {
                 errorList.Add(Resources.ResourceManager.GetString(name: "InvalidFullName"));
             }
-            // Phòng ban không được phép để trống
+            // Đơn vị không được phép để trống
             if (employee.DepartmentID == Guid.Empty || employee.DepartmentID == null)
             {
                 errorList.Add(Resources.ResourceManager.GetString(name: "InvalidDepartment"));
@@ -63,19 +64,19 @@ namespace MISA.WEB07.AMIS.BL.Services
             // Ngày sinh, ngày cấp không lớn hơn ngày hiện tại
             if (employee.DateOfBirth.HasValue && employee.DateOfBirth >= DateTime.Now)
             {
-                errorList.Add(Resources.ResourceManager.GetString(name: "InvalidDate"));
+                errorList.Add(Resources.ResourceManager.GetString(name: "InvalidDateOfBirth"));
             }
             if (employee.IdentityDate.HasValue && employee.IdentityDate >= DateTime.Now)
             {
-                errorList.Add(Resources.ResourceManager.GetString(name: "InvalidDate"));
+                errorList.Add(Resources.ResourceManager.GetString(name: "InvalidIdentityDate"));
             }
             // Kiểm tra mã nhân viên đã tồn tại hay chưa
-            if (!string.IsNullOrEmpty(employee.EmployeeCode) && _employeeDL.IsDuplicate(employee.EmployeeID, employee.EmployeeCode))
+            if (!string.IsNullOrEmpty(employee.EmployeeCode) && _employeeDL.IsDuplicate(id, employee.EmployeeCode))
             {
                 errorList.Add(Resources.ResourceManager.GetString(name: "DuplicateEmployeeCode"));
             }
 
-            if (errorList != null)
+            if (errorList.Count > 0)
             {
                 return false;
             }
@@ -118,6 +119,76 @@ namespace MISA.WEB07.AMIS.BL.Services
         {
             Regex regex = new Regex(@"^[\w!#$%&'*+\-/=?\^_`{|}~]+(\.[\w!#$%&'*+\-/=?\^_`{|}~]+)*" + "@" + @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$");
             return regex.IsMatch(email);
+        }
+
+
+        /// <summary>
+        /// Lấy dữ liệu Employee ra file Excel
+        /// </summary>
+        /// <returns>Dữ liệu file</returns>
+        /// CreatedBy VMHieu 09/09/2022
+        public MemoryStream ExportService(string? keyword)
+        {
+            // Lấy dữ liệu Employee theo dạng EmployeeExcel:
+            var employees = _employeeDL.FilterEmployees(keyword, 1000, 1);
+            if (employees == null)
+            {
+                throw new NullReferenceException();
+            }
+            var employeeExcel = new List<EmployeeExcel>();
+            var index = 1;
+            foreach (var employee in employees.Data)
+            {
+                employeeExcel.Add(new EmployeeExcel(index, employee));
+                index++;
+            }
+
+            var stream = new MemoryStream();
+
+            using (var package = new ExcelPackage(stream))
+            {
+                // Tạo Sheet Excel
+                var workSheet = package.Workbook.Worksheets.Add("Danh_sach_nhan_vien");
+
+                // Nạp dữ liệu
+                workSheet.Cells.LoadFromCollection(employeeExcel, false);
+
+                // Phần tiêu đề:
+                workSheet.InsertRow(1, 3);
+                workSheet.Cells["A1:R1"].Merge = true;
+                workSheet.Cells["A2:R2"].Merge = true;
+
+                // Nội dung tiêu đề:
+                workSheet.Cells["A1"].LoadFromText("DANH SÁCH NHÂN VIÊN");
+
+                // Phần tên cột bảng:
+                workSheet.Cells[3, 1].LoadFromText("STT, Mã nhân viên, Tên nhân viên, Giới tính, Ngày sinh, Đơn vị, Chức danh, Số CCCD, Ngày cấp, Nơi cấp, Email, SĐT di động, SĐT cố định, Địa chỉ, Số tài khoản, Tên ngân hàng, Tên chi nhánh");
+
+                // Định dạng ngày tháng là dd/mm/yyyy:
+                workSheet.Column(5).Style.Numberformat.Format = "dd/mm/yyyy";
+                workSheet.Column(9).Style.Numberformat.Format = "dd/mm/yyyy";
+
+                for (int i = 1; i <= 18; i++)
+                {
+                    workSheet.Column(i).AutoFit();
+                }
+
+                // Lưu lại dữ liệu:
+                package.Save();
+            }
+            stream.Position = 0;
+            return stream;
+        }
+
+        /// <summary>
+        /// Xóa nhiều bản ghi cùng lúc
+        /// </summary>
+        /// <param name="ids">Chuỗi chứa các id của nhân viên cần xóa</param>
+        /// <returns></returns>
+        /// CreatedBy VMHieu 09/09/2022
+        public int deleteMultiple(string ids)
+        {
+            return _employeeDL.deleteMultiple(ids);
         }
 
 

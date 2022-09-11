@@ -33,7 +33,7 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// + Danh sách nhân viên thỏa mãn điều kiện lọc và phân trang
         /// + Tổng số nhân viên thỏa mãn điều kiện</returns>
         /// Created by VMHieu (21/08/2022)
-        public object FilterEmployees(string? keyword, int pageSize = 10, int pageNumber = 1)
+        public PagingData<Employee> FilterEmployees(string? keyword, int pageSize, int pageNumber)
         {
             // Chuẩn bị tên Stored procedure
             string storedProcedureName = "Proc_Employee_GetPaging";
@@ -63,12 +63,10 @@ namespace MISA.WEB07.AMIS.DL.Repository
             var multipleResults = mySqlConnection.QueryMultiple(storedProcedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
 
             // Xử lý kết quả trả về từ DB
-            var employees = multipleResults.Read<Employee>().ToList();
-            var totalCount = multipleResults.Read<long>().Single();
             PagingData<Employee> pagingData = new PagingData<Employee>()
             {
-                Data = employees,
-                TotalCount = totalCount
+                Data = (List<Employee>)multipleResults.Read<Employee>(),
+                TotalCount = multipleResults.Read<int>().Single(),
             };
             return pagingData;
         }
@@ -80,10 +78,13 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 21/08/2022
         public string getNewEmployeeCode()
         {
+            // Chuẩn bị câu lệnh 
             string storedNewEmployeeCode = "Proc_Employee_GetMaxCode";
 
+            // Thực hiện gọi vào db để chạy câu lệnh GetNewEmployeeCode với tham số đầu vào ở trên
             string newEmployeeCode = mySqlConnection.QueryFirstOrDefault<String>(storedNewEmployeeCode, commandType: System.Data.CommandType.StoredProcedure);
-
+            
+            // Xử lý kết quả trả về ở db
             string newCode = "NV" + (Int64.Parse(newEmployeeCode.Substring(2)) + 1).ToString();
 
             return newCode;
@@ -96,14 +97,19 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 28/08/2022
         public bool IsDuplicate(Guid? employeeID, string employeeCode)
         {
+            // Chuẩn bị câu lệnh 
             var storeProc = "Proc_CheckDuplicateCode";
 
+            // Chuẩn bị tham số đầu vào
             var parameters = new DynamicParameters();
 
             parameters.Add("$EmployeeID", employeeID);
             parameters.Add("$EmployeeCode", employeeCode);
 
+            // Thực hiện gọi vào db để chạy câu lệnh với tham số đầu vào ở trên
             var employeeCodeDuplidate = mySqlConnection.QueryFirstOrDefault(sql: storeProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
+
+            // Xử lý kết quả của db
             if (employeeCodeDuplidate != null)
             {
                 return true;
@@ -112,6 +118,46 @@ namespace MISA.WEB07.AMIS.DL.Repository
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Xóa nhiều bản ghi cùng lúc
+        /// </summary>
+        /// <param name="ids">Chuỗi chứa các id của nhân viên cần xóa</param>
+        /// <returns></returns>
+        /// CreatedBy VMHieu 09/09/2022
+        public int deleteMultiple(string ids)
+        {
+            // Tách dữ liệu id từ chuỗi ids:
+            List<string> selectedIds = ids.Split('/').ToList();
+
+            // Chuẩn bị câu lệnh Proc
+            var sqlCommand = "Proc_Employee_DeleteMultiple";
+
+            // Chuẩn bị tham số đầu vào cho câu lệnh sql
+            var parameters = new DynamicParameters();
+
+            var whereClause = "";
+            foreach (var id in selectedIds)
+            {
+                if (id.Equals(selectedIds.Last()))
+                {
+                    whereClause += $"'{id}'";
+                }
+                else
+                {
+                    whereClause += $"'{id}', ";
+                }
+            }
+            whereClause = '"' + whereClause + '"';
+
+            parameters.Add("$EmployeeID", whereClause);
+
+            // Thực hiện gọi vào db để chạy câu lệnh với tham số đầu vào ở trên
+            var result = mySqlConnection.Execute(sqlCommand, parameters, commandType: System.Data.CommandType.StoredProcedure);
+
+            // Xử lý kết quả của db
+            return result;
         }
     }
 }

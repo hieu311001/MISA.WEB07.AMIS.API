@@ -141,11 +141,23 @@
     <value>Sửa dữ liệu không thành công</value>
     <comment>Sửa dữ liệu không thành công</comment>
   </data>
+  <data name="Gender_Female" xml:space="preserve">
+    <value>Nữ</value>
+    <comment>Nữ</comment>
+  </data>
+  <data name="Gender_Male" xml:space="preserve">
+    <value>Nam</value>
+    <comment>Nam</comment>
+  </data>
+  <data name="Gender_Other" xml:space="preserve">
+    <value>Khác</value>
+    <comment>Khác</comment>
+  </data>
   <data name="InvalidData" xml:space="preserve">
     <value>Dữ liệu đầu vào không hợp lệ</value>
     <comment>Dữ liệu đầu vào không hợp lệ</comment>
   </data>
-  <data name="InvalidDate" xml:space="preserve">
+  <data name="InvalidDateOfBirth" xml:space="preserve">
     <value>Thời gian vượt quá ngày hiện tại</value>
     <comment>Thời gian vượt quá ngày hiện tại</comment>
   </data>
@@ -164,6 +176,10 @@
   <data name="InvalidEmployeeName" xml:space="preserve">
     <value>Tên nhân viên không được để trống</value>
     <comment>Tên nhân viên không được để trống</comment>
+  </data>
+  <data name="InvalidIdentityDate" xml:space="preserve">
+    <value>Thời gian vượt quá ngày hiện tại</value>
+    <comment>Thời gian vượt quá ngày hiện tại</comment>
   </data>
   <data name="NullData" xml:space="preserve">
     <value>Dữ liệu trả về là null</value>

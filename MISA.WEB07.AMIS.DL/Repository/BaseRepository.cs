@@ -55,7 +55,7 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// <summary>
         /// Giải phóng bộ nhớ
         /// </summary>
-        /// CreatedBy VMHieu 28/02/2022
+        /// CreatedBy VMHieu 28/08/2022
         public void Dispose()
         {
             mySqlConnection.Dispose();
@@ -72,10 +72,13 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public virtual IEnumerable<T> GetAll()
         {
+            // Chuẩn bị câu lệnh GetAll
             var getAllEmployeeCommand = $"Proc_{className}_GetAll";
 
+            // Thực hiện gọi vào db để chạy câu lệnh GetAll với tham số đầu vào ở trên
             var result = mySqlConnection.Query<T>(getAllEmployeeCommand, commandType: System.Data.CommandType.StoredProcedure);
 
+            // Xử lý kết quả trả về ở db
             if (result == null)
             {
                 throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "NullData"));
@@ -92,13 +95,17 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public virtual T GetById(Guid id)
         {
+            // Chuẩn bị câu lệnh GetById
             var getByIdCommand = $"Proc_{className}_GetById";
 
+            // Chuẩn bị các tham số đầu vào
             var parameters = new DynamicParameters();
             parameters.Add($"${className}Id", id);
 
+            // Thực hiện gọi vào db để chạy câu lệnh GetById với tham số đầu vào ở trên
             var result = mySqlConnection.QueryFirstOrDefault<T>(getByIdCommand, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
 
+            // Xử lý kết quả trả về ở db
             if(result == null)
             {
                 throw new ErrorException(devmsg: Resources.ResourceManager.GetString(name: "NullData"));
@@ -114,10 +121,13 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public int Insert(T entity)
         {
+            // Chuẩn bị câu lệnh Insert
             var storeProc = $"Proc_{className}_Insert";
 
+            // Chuẩn bị tham số đầu vào cho câu lệnh Insert
             var parameters = new DynamicParameters(entity);
 
+            // Thực hiện gọi vào db để chạy câu lệnh Insert với tham số đầu vào ở trên
             var result = mySqlConnection.Execute(storeProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
             if(result == 0)
             {
@@ -134,11 +144,14 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public int Update(T entity, Guid id)
         {
+            // Chuẩn bị câu lệnh Update
             var storeProc = $"Proc_{className}_Update";
 
+            // Chuẩn bị tham số đầu vào cho câu lệnh Update
             var parameters = new DynamicParameters(entity);
             parameters.Add($"{className}ID", id);
 
+            // Thực hiện gọi vào db để chạy câu lệnh Update với tham số đầu vào ở trên
             var result = mySqlConnection.Execute(storeProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
             if(result == 0)
             {
@@ -155,11 +168,14 @@ namespace MISA.WEB07.AMIS.DL.Repository
         /// CreatedBy VMHieu 23/08/2022
         public int Delete(Guid id)
         {
+            // Chuẩn bị câu lệnh Delete
             var getByIdCommand = $"Proc_{className}_Delete";
 
+            // Chuẩn bị tham số đầu vào cho câu lệnh Delete
             var parameters = new DynamicParameters();
             parameters.Add($"${className}Id", id);
 
+            // Thực hiện gọi vào db để chạy câu lệnh Delete với tham số đầu vào ở trên
             var result = mySqlConnection.Execute(getByIdCommand, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
             if (result == 0)
             {

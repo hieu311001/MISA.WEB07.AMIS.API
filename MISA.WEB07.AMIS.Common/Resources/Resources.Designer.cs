@@ -115,6 +115,33 @@ namespace MISA.WEB07.AMIS.Common {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nữ.
+        /// </summary>
+        public static string Gender_Female {
+            get {
+                return ResourceManager.GetString("Gender_Female", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nam.
+        /// </summary>
+        public static string Gender_Male {
+            get {
+                return ResourceManager.GetString("Gender_Male", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Khác.
+        /// </summary>
+        public static string Gender_Other {
+            get {
+                return ResourceManager.GetString("Gender_Other", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dữ liệu đầu vào không hợp lệ.
         /// </summary>
         public static string InvalidData {
@@ -126,9 +153,9 @@ namespace MISA.WEB07.AMIS.Common {
         /// <summary>
         ///   Looks up a localized string similar to Thời gian vượt quá ngày hiện tại.
         /// </summary>
-        public static string InvalidDate {
+        public static string InvalidDateOfBirth {
             get {
-                return ResourceManager.GetString("InvalidDate", resourceCulture);
+                return ResourceManager.GetString("InvalidDateOfBirth", resourceCulture);
             }
         }
         
@@ -165,6 +192,15 @@ namespace MISA.WEB07.AMIS.Common {
         public static string InvalidEmployeeName {
             get {
                 return ResourceManager.GetString("InvalidEmployeeName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thời gian vượt quá ngày hiện tại.
+        /// </summary>
+        public static string InvalidIdentityDate {
+            get {
+                return ResourceManager.GetString("InvalidIdentityDate", resourceCulture);
             }
         }
         

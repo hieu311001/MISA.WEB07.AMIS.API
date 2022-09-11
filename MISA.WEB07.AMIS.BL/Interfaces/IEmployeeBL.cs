@@ -28,5 +28,20 @@ namespace MISA.WEB07.AMIS.BL.Interfaces
             string? keyword,
             int pageSize = 10,
             int pageNumber = 1);
+
+        /// <summary>
+        /// Lấy dữ liệu Employee ra file Excel
+        /// </summary>
+        /// <returns>Dữ liệu file</returns>
+        /// CreatedBy VMHieu 09/09/2022
+        public MemoryStream ExportService(string? keyword);
+
+        /// <summary>
+        /// Xóa nhiều bản ghi cùng lúc
+        /// </summary>
+        /// <param name="ids">Chuỗi chứa các id của nhân viên cần xóa</param>
+        /// <returns></returns>
+        /// CreatedBy VMHieu 09/09/2022
+        public int deleteMultiple(string ids);
     }
 }

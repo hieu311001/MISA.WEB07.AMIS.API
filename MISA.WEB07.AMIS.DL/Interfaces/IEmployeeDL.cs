@@ -19,15 +19,14 @@ namespace MISA.WEB07.AMIS.DL.Interfaces
         /// <summary>
         /// API Lấy danh sách nhân viên cho phép lọc và phân trang
         /// </summary>
-        /// <param name="code">Mã nhân viên</param>
-        /// <param name="name">Tên nhân viên</param>
+        /// <param name="keyword">Từ khóa cần tìm kiếm</param>
         /// <param name="pageSize">Số trang muốn lấy</param>
         /// <param name="pageNumber">Thứ tự trang muốn lấy</param>
         /// <returns>Một đối tượng gồm:
         /// + Danh sách nhân viên thỏa mãn điều kiện lọc và phân trang
         /// + Tổng số nhân viên thỏa mãn điều kiện</returns>
         /// Created by VMHieu (21/08/2022)
-        public object FilterEmployees(
+        public PagingData<Employee> FilterEmployees(
             string? keyword,
             int pageSize = 10,
             int pageNumber = 1);
@@ -40,5 +39,12 @@ namespace MISA.WEB07.AMIS.DL.Interfaces
         /// CreatedBy VMHieu 28/08/2022
         public bool IsDuplicate(Guid? employeeID, string employeeCode);
 
+        /// <summary>
+        /// Xóa nhiều bản ghi cùng lúc
+        /// </summary>
+        /// <param name="ids">Chuỗi chứa các id của nhân viên cần xóa</param>
+        /// <returns></returns>
+        /// CreatedBy VMHieu 09/09/2022
+        public int deleteMultiple(string ids);
     }
 }

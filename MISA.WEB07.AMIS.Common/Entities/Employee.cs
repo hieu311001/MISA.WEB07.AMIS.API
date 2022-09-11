@@ -41,6 +41,25 @@ namespace MISA.WEB07.AMIS.Common.Entities
         public Gender? Gender { get; set; }
 
         /// <summary>
+        /// Giới tính VN
+        /// </summary>
+        public string? GenderName
+        {
+            get
+            {
+                switch (Gender)
+                {
+                    case Enum.Gender.Male:
+                        return Resources.ResourceManager.GetString("Gender_Male");
+                    case Enum.Gender.Female:
+                        return Resources.ResourceManager.GetString("Gender_Female");
+                    default:
+                        return Resources.ResourceManager.GetString("Gender_Other");
+                }
+            }
+        }
+
+        /// <summary>
         /// Số CMND
         /// </summary>
         public string? IdentityNumber { get; set; }

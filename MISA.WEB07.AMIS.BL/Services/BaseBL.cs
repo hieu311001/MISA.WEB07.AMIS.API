@@ -57,7 +57,7 @@ namespace MISA.WEB07.AMIS.BL.Services
         /// CreatedBy VMHieu 23/08/2022
         public virtual int Insert(T entity)
         {
-            var isValid = Validate(entity);
+            var isValid = Validate(entity, Guid.Empty);
             if (isValid)
             {
                 return _baseDL.Insert(entity);
@@ -74,7 +74,7 @@ namespace MISA.WEB07.AMIS.BL.Services
         /// CreatedBy VMHieu 23/08/2022
         public virtual int Update(T entity, Guid id)
         {
-            var isValid = Validate(entity);
+            var isValid = Validate(entity, id);
             if (isValid)
             {
                 return _baseDL.Update(entity, id);
@@ -101,7 +101,7 @@ namespace MISA.WEB07.AMIS.BL.Services
         /// <param name="entity">Dữ liệu bản ghi cần validate</param>
         /// <returns>true - nếu hợp lệ, false - nếu không hợp lệ</returns>
         /// CreatedBy VMHieu 28/08/2022
-        protected virtual bool Validate(T entity)
+        protected virtual bool Validate(T entity, Guid? id)
         {
             return true;
         }
