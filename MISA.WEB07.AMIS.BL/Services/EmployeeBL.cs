@@ -35,7 +35,8 @@ namespace MISA.WEB07.AMIS.BL.Services
         /// <summary>
         /// Validate dữ liệu nhân viên
         /// </summary>
-        /// <param name="entity">Dữ liệu bản ghi cần validate</param>
+        /// <param name="employee">Dữ liệu bản ghi cần validate</param>
+        /// <param name="id> ID bản ghi cần validate</param>
         /// <returns>true - nếu hợp lệ, false - nếu không hợp lệ</returns>
         /// CreatedBy VMHieu 28/08/2022
         protected override bool Validate(Employee employee, Guid? id)
@@ -94,7 +95,7 @@ namespace MISA.WEB07.AMIS.BL.Services
         /// + Danh sách nhân viên thỏa mãn điều kiện lọc và phân trang
         /// + Tổng số nhân viên thỏa mãn điều kiện</returns>
         /// Created by VMHieu (21/08/2022)
-        public object FilterEmployees(string? keyword, int pageSize = 10, int pageNumber = 1)
+        public PagingData<Employee> FilterEmployees(string? keyword, int pageSize = 10, int pageNumber = 1)
         {
             return _employeeDL.FilterEmployees(keyword, pageSize, pageNumber);
         }
@@ -150,23 +151,49 @@ namespace MISA.WEB07.AMIS.BL.Services
                 // Tạo Sheet Excel
                 var workSheet = package.Workbook.Worksheets.Add("Danh_sach_nhan_vien");
 
+                // Set default width cho tất cả column
+                workSheet.DefaultColWidth = 15;
+
                 // Nạp dữ liệu
                 workSheet.Cells.LoadFromCollection(employeeExcel, false);
 
                 // Phần tiêu đề:
                 workSheet.InsertRow(1, 3);
-                workSheet.Cells["A1:R1"].Merge = true;
-                workSheet.Cells["A2:R2"].Merge = true;
+                workSheet.Cells["A1:I1"].Merge = true;
+                workSheet.Cells["A2:I2"].Merge = true;
 
                 // Nội dung tiêu đề:
                 workSheet.Cells["A1"].LoadFromText("DANH SÁCH NHÂN VIÊN");
 
+                // Style tiêu đề:
+                workSheet.Cells["A1"].Style.Font.Bold = true;
+                workSheet.Cells["A1"].Style.Font.Size = 16;
+                workSheet.Cells["A1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
                 // Phần tên cột bảng:
-                workSheet.Cells[3, 1].LoadFromText("STT, Mã nhân viên, Tên nhân viên, Giới tính, Ngày sinh, Đơn vị, Chức danh, Số CCCD, Ngày cấp, Nơi cấp, Email, SĐT di động, SĐT cố định, Địa chỉ, Số tài khoản, Tên ngân hàng, Tên chi nhánh");
+                workSheet.Cells[3, 1].LoadFromText("STT, Mã nhân viên, Tên nhân viên, Giới tính, Ngày sinh, Chức danh, Tên Đơn Vị, Số tài khoản, Tên ngân hàng");
 
                 // Định dạng ngày tháng là dd/mm/yyyy:
                 workSheet.Column(5).Style.Numberformat.Format = "dd/mm/yyyy";
-                workSheet.Column(9).Style.Numberformat.Format = "dd/mm/yyyy";
+                
+                // Căn giữa ngày sinh và STT
+                workSheet.Column(1).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Column(5).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                // Style hàng tên cột
+                workSheet.Cells["A3:I3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells["A3:I3"].Style.Font.Bold = true;
+                workSheet.Cells["A3:I3"].Style.Font.Size = 10;
+                workSheet.Cells["A3:I3"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                workSheet.Cells["A3:I3"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(216, 216, 216));
+
+                // Lấy range vào tạo format cho range đó
+                using (var range = workSheet.Cells[$"A3:I{employeeExcel.Count + 3}"])
+                {
+                    // Set Border
+                    range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                    range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                }
 
                 for (int i = 1; i <= 18; i++)
                 {

@@ -30,35 +30,11 @@ namespace MISA.WEB07.AMIS.Common.Entities
         // Tên chức danh
         public string? PositionName { get; }
 
-        // Số CMND
-        public string? IdentityNumber { get; set; }
-
-        // Ngày cấp
-        public DateTime? IdentityDate { get; set; }
-
-        // Nơi cấp
-        public string? IdentityPlace { get; set; }
-
-        // Email
-        public string? Email { get; set; }
-
-        // Số điện thoại di động
-        public string? PhoneNumber { get; set; }
-
-        // Số điện thoại cố định
-        public string? HotLine { get; set; }
-
-        // Địa chỉ
-        public string? Address { get; set; }
-
         // Tài khoản ngân hàng
         public string? BankAccount { get; set; }
 
         // Tên ngân hàng
         public string? BankName { get; set; }
-
-        // Tên chi nhánh
-        public string? BankBranch { get; set; }
 
         /// <summary>
         /// Hàm khởi tạo
@@ -71,20 +47,12 @@ namespace MISA.WEB07.AMIS.Common.Entities
             Index = index;
             EmployeeCode = employee.EmployeeCode;
             EmployeeName = employee.EmployeeName;
-            DepartmentName = employee.DepartmentName;
-            PositionName = employee.PositionName;
-            DateOfBirth = employee.DateOfBirth;
             GenderName = employee.GenderName;
-            IdentityNumber = employee.IdentityNumber;
-            IdentityDate = employee.IdentityDate;
-            IdentityPlace = employee.IdentityPlace;
-            Email = employee.Email;
-            PhoneNumber = employee.PhoneNumber;
-            HotLine = employee.HotLine;
-            Address = employee.Address;
+            DateOfBirth = employee.DateOfBirth;
+            PositionName = employee.PositionName;
+            DepartmentName = employee.DepartmentName;
             BankAccount = employee.BankAccount;
             BankName = employee.BankName;
-            BankBranch = employee.BankBranch;
         }
     }
 }

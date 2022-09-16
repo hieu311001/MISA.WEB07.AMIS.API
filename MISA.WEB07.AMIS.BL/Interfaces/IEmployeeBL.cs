@@ -24,7 +24,7 @@ namespace MISA.WEB07.AMIS.BL.Interfaces
         /// + Danh sách nhân viên thỏa mãn điều kiện lọc và phân trang
         /// + Tổng số nhân viên thỏa mãn điều kiện</returns>
         /// Created by VMHieu (21/08/2022)
-        public object FilterEmployees(
+        public PagingData<Employee> FilterEmployees(
             string? keyword,
             int pageSize = 10,
             int pageNumber = 1);
